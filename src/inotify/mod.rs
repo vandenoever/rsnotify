@@ -97,13 +97,8 @@ impl mio::Handler for INotifyHandler {
 
 impl INotifyHandler {
     fn add_watch_recursively(&mut self, path: PathBuf) -> Result<()> {
-        match metadata(&path) {
-            Err(e) => return Err(Error::Io(e)),
-            Ok(m) => {
-                if !m.is_dir() {
-                    return self.add_watch(path);
-                }
-            }
+        if let Err(e) = metadata(&path) {
+            return Err(Error::Io(e));
         }
 
         for entry in WalkDir::new(path)
